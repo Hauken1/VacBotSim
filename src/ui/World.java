@@ -5,9 +5,12 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.rmi.CORBA.Tie;
 import javax.swing.JPanel;
 
 public class World extends JPanel  {
@@ -18,6 +21,8 @@ public class World extends JPanel  {
 	public static final int WORLD_HEIGHT = 800;
 	public static final int WORLD_WIDTH = 800;
 	
+	private boolean botSet;
+	private int botNr;
 	private int rows;
 	private int columns;
 	private int objects;
@@ -31,15 +36,22 @@ public class World extends JPanel  {
 		this.columns = columns;
 		this.objects = objects;
 		this.dustParticles = dustParticles;
+		botSet = false;
+		botNr = 0;
 		
 		int nrTiles = rows * columns;
 		
-		System.out.println(nrTiles);
-		
-		//Creates tiles requested by user
-		for(int i=0; i < nrTiles; i++) {
-			FloorTile tile = new FloorTile(i); 
+		int tilenr = 0;
+		for(int i=0; i < rows; i++) {
+			for( int j = 0; j < columns; j++) {
+				
+			int x = i * TILE_SIZE;
+			int y = j * TILE_SIZE;
+			
+			FloorTile tile = new FloorTile(tilenr, x, y); 
 			tiles.add(tile);
+			tilenr++;
+			}
 		}
 		
 		/*
@@ -50,7 +62,6 @@ public class World extends JPanel  {
 		for(int i = 0; i < objects; i++) {
 			Random rng = new Random();
 			int nL = rng.nextInt(nrTiles);
-			System.out.println(nL);
 			if(!tiles.get(nL).isObject()){
 				tiles.get(nL).setObject();
 			}
@@ -64,26 +75,72 @@ public class World extends JPanel  {
 		for(int i = 0; i < dustParticles; i++) {
 			Random rng = new Random();
 			int nL = rng.nextInt(nrTiles);
-			System.out.println(nL);
 			if(!tiles.get(nL).isObject() && !tiles.get(nL).isDust()){
 				tiles.get(nL).setDust();
 			}
 			else i--;
 		}
 		
+		while(!botSet) {
+			Random rng = new Random();
+			int nL = rng.nextInt(nrTiles);
+			if(!tiles.get(nL).isObject() && !tiles.get(nL).isDust()){
+				tiles.get(nL).setBot();
+				botSet = true;
+				botNr = nL;
+			}
+		}
+		
+		//For this to work the col and row needs to be even numbers
+		//Places the robot where the user wants
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//Checks if clicked area is inside a tile
+				int x = e.getX();
+				int y = e.getY();
+				
+				x = (x/TILE_SIZE);
+				y = (y/TILE_SIZE);
+				if(x == 0) x++;
+				if( y == 0) y++;
+				
+				int test = 10 * x;
+				int test2 = y;
+				int test3 = test + test2 - 10;
+				System.out.println("x: " + x +", y: " + y);
+				System.out.println("test3: " + test3);
+				
+				int increment = 0;
+				for(int yTile = 0; yTile < World.this.rows; yTile++) {
+		        	 for(int xTile = 0; xTile < World.this.columns; xTile++) {
+		        		 if(!tiles.get(increment).isObject() && !tiles.get(increment).isDust()
+		        				 								&& tiles.get(increment).getTileNr() == test3 &&!botSet) {
+		        			 System.out.println("incre i mouse: " +increment);
+		        			 tiles.get(increment).setBot();
+		        			 botSet = true;
+		        			 botNr = increment;
+		        			 repaint();
+		        			 
+		        		 }
+		        		 increment++;
+		        	 }
+				}
+			}
+		});
+		
 	}
 	
-	
 	 @Override
-	    public void paintComponent(Graphics g) {
+	 public void paintComponent(Graphics g) {
 	        super.paintComponent(g);
 	        Graphics2D g2d = (Graphics2D) g;
 	        g2d.clearRect(0, 0, getWidth(), getHeight());
 	        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 	                RenderingHints.VALUE_ANTIALIAS_ON);
 	        drawWorld(g);
-	        //drawRobot(g);
-	    }
+	        drawBot(g);
+	 }
 
 	 public void drawWorld(Graphics g) {
 		 
@@ -110,8 +167,6 @@ public class World extends JPanel  {
         		 increment++;
         	 }
         		 
-        	
-        	 
          }
          
          // Draw vertical lines
@@ -136,7 +191,26 @@ public class World extends JPanel  {
              g2d.drawLine(0, y, x, y);
          }
 		 
-         
+	 }
+	 
+	 public void drawBot(Graphics g) {
+		 if(botSet) {
+			int increment = 0;
+			for(int x = 0; x < rows; x++) {
+				for(int y = 0; y < columns; y++) {
+					System.out.println(increment);
+					if(tiles.get(increment).isBot()) {
+						System.out.println(increment);
+						System.out.println("bot" + botNr);
+						System.out.println("x: " + x + "y: " + y);
+						g.setColor(Color.GREEN);
+						g.fillRect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE - 1, TILE_SIZE - 1);
+					}
+					increment++;
+				}
+			}
+			 
+		 }
 		 
 	 }
 }

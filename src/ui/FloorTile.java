@@ -4,22 +4,31 @@ public class FloorTile {
 	
 	private boolean isObject;
 	private boolean hasDust;
+	private boolean isBot;
 	private int tileNr;
+	private int x; 
+	private int y;
 	
-	public FloorTile(int id) {
+	public FloorTile(int id, int x, int y) {
 		tileNr = id;
 		hasDust = false;
 		isObject = false;
+		isBot = false;
+		this.x = x;
+		this.y = y;
 	}
 
+	public int getTileNr() {
+		return tileNr;
+	}
 	public void setDust() {
 		hasDust = true;
-		System.out.println("Tilenr " + tileNr + " is a dusttile" );
+		
 	}
 
 	public void setObject() {
 		isObject = true;
-		System.out.println("Tilenr " + tileNr + " is an object" );
+		
 	}
 	
 	public boolean isDust() {
@@ -29,5 +38,21 @@ public class FloorTile {
 		return isObject;
 	}
 	
+	public int xCoor() {
+		return x;
+	}
+	
+	public int yCoor() {
+		return y;
+	}
+	
+	public boolean isBot() {
+		return isBot;
+	}
+	
+	public void setBot() {
+		System.out.println("tilenr: " + tileNr);
+		isBot = true;
+	}
 	
 }

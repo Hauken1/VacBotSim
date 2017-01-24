@@ -88,7 +88,6 @@ public class MainFrame extends JFrame {
             	c = Integer.parseInt(nrCols.getText());
             	d = Integer.parseInt(dustPs.getText());
             	o = Integer.parseInt(nrObjects.getText());
-            	System.out.println(r);
             	world = new World(r, c, d, o);
                 world.setBounds(10, 10, 800, 800);
                 contentPane.add(world);
