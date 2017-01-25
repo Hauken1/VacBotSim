@@ -55,4 +55,11 @@ public class FloorTile {
 		isBot = true;
 	}
 	
+	public void removeDust() {
+		hasDust = false;
+	}
+	
+	public void removebot() {
+		isBot = false;
+	}
 }

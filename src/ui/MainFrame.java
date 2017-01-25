@@ -36,6 +36,8 @@ public class MainFrame extends JFrame {
     //The playground for the vacuum cleaner
     private World world;
 
+    private Thread thread;
+    
     //GUI components
     private JPanel contentPane;
     private JTextField nrObjects;
@@ -43,19 +45,17 @@ public class MainFrame extends JFrame {
     private JTextField nrRows;
     private JTextField nrCols;
     private JButton runBtn;
-    private JButton btnStep;
     private JButton stopBtn;
-    private JButton btnScore;
     private JButton resetButton;
 
     // Timer for starting/stopping simulation
     private Timer timer;
 
-    private JLabel lblPerceptString;
-    private JLabel lblActionString;
-    private JLabel lblPositionString;
-    private JLabel lblStatus;
-    private JCheckBox chckbxShowGridLines;
+    private JLabel stepLbl;
+    private JLabel scoreLbl;
+    private JLabel dustRmnLbl;
+    private JLabel statusLbl;
+    private JCheckBox agentCkBox;
     
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -88,11 +88,19 @@ public class MainFrame extends JFrame {
             	c = Integer.parseInt(nrCols.getText());
             	d = Integer.parseInt(dustPs.getText());
             	o = Integer.parseInt(nrObjects.getText());
-            	world = new World(r, c, d, o);
+            	world = new World(r, c, d, o, stepLbl);
                 world.setBounds(10, 10, 800, 800);
                 contentPane.add(world);
                 repaint();
+                world.simStarted();
                 runBtn.setEnabled(false);
+                thread = new Thread(new Runnable() {
+					public void run() {
+						world.start();
+					}
+				});
+                thread.start();
+                
             }
         });
         runBtn.setBounds(900, 11, 89, 23);
@@ -103,6 +111,7 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //stop();
+            	
             }
         });
         stopBtn.setBounds(1000, 11, 89, 23);
@@ -112,6 +121,7 @@ public class MainFrame extends JFrame {
         resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	world.simStopped();
             	remove(world);
             	repaint();
             	runBtn.setEnabled(true);
@@ -120,22 +130,6 @@ public class MainFrame extends JFrame {
         resetButton.setBounds(950, 45, 89, 23);
         contentPane.add(resetButton);
 
-        /*
-        btnScore = new JButton("Score");
-        btnScore.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //showScore();
-            }
-        });
-        
-        
-        btnScore.setBounds(379, 79, 89, 23);
-        contentPane.add(btnScore);
-		*/
-        //map = new Map(false);
-        //map.setBounds(10, 11, 350, 350);
-        //contentPane.add(map);
         
         JLabel simVarLabel = new JLabel("Simulation variables");
         simVarLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -184,64 +178,21 @@ public class MainFrame extends JFrame {
         simInfoLabel.setBounds(900, 270, 200, 23);
         contentPane.add(simInfoLabel);
         
-        
-        
         /*
-         * 
-        JLabel lblAgentPosition = new JLabel("Sim info");
-        lblAgentPosition.setFont(new Font("Tahoma", Font.BOLD, 16));
-        lblAgentPosition.setBounds(950, 270, 185, 23);
-        contentPane.add(lblAgentPosition);
+         * Make a checkbox with different agents
+         * Display sim information: steps, dust left, and so on
+         */
+        JLabel stepText = new JLabel("Steps: ");
+        stepText.setBounds(900, 310, 89, 14);
+        stepText.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        contentPane.add(stepText);
         
-        JLabel lblPercept = new JLabel("Last Percept:");
-        lblPercept.setFont(new Font("Tahoma", Font.BOLD, 11));
-        lblPercept.setBounds(379, 229, 89, 14);
-        contentPane.add(lblPercept);
-
-        JLabel lblAction = new JLabel("Last Action:");
-        lblAction.setFont(new Font("Tahoma", Font.BOLD, 11));
-        lblAction.setBounds(379, 254, 89, 14);
-        contentPane.add(lblAction);
-
-        JLabel lblPosition = new JLabel("Position:");
-        lblPosition.setFont(new Font("Tahoma", Font.BOLD, 11));
-        lblPosition.setBounds(379, 279, 89, 14);
-        contentPane.add(lblPosition);
-
-        JLabel lblSimulationStatus = new JLabel("Simulation Status");
-        lblSimulationStatus.setFont(new Font("Tahoma", Font.BOLD, 16));
-        lblSimulationStatus.setBounds(379, 315, 155, 14);
-        contentPane.add(lblSimulationStatus);
-
-        lblStatus = new JLabel(STOPPED);
-        lblStatus.setForeground(Color.RED);
-        lblStatus.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        lblStatus.setBounds(379, 345, 89, 14);
-        contentPane.add(lblStatus);
-
-        lblPerceptString = new JLabel("");
-        lblPerceptString.setBounds(488, 229, 86, 14);
-        contentPane.add(lblPerceptString);
-
-        lblActionString = new JLabel("");
-        lblActionString.setBounds(488, 254, 86, 14);
-        contentPane.add(lblActionString);
-
-        lblPositionString = new JLabel("");
-        lblPositionString.setBounds(488, 279, 86, 14);
-        contentPane.add(lblPositionString);
-		
-        chckbxShowGridLines = new JCheckBox("Show grid lines");
-        chckbxShowGridLines.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-               // map.setShowGridLines(e.getStateChange() == ItemEvent.SELECTED);
-                repaint();
-            }
-        });
-        chckbxShowGridLines.setBounds(379, 108, 97, 23);
-        contentPane.add(chckbxShowGridLines);
-		*/
+        stepLbl = new JLabel();
+        stepLbl.setText("1000");
+        stepLbl.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        stepLbl.setBounds(1000, 310, 89, 14);
+        contentPane.add(stepLbl);
+        
         // Set properties
         this.setTitle("VacBot Simulator");
         this.setResizable(false);
@@ -255,5 +206,9 @@ public class MainFrame extends JFrame {
                     }
                 });
         timer.setInitialDelay(0);
+	}
+	
+	public void setStepText() {
+		
 	}
 }
