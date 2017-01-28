@@ -1,31 +1,25 @@
+//Packages
 package ui;
-
-import java.awt.Color;
+//Imports
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.Map;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
-//import vacworld.VacuumWorld;
-//import vacworld.ui.Map;
-
+/**
+ * Main class that makes all the GUI and creates the simulation world
+ * @author Hauken
+ */
 public class MainFrame extends JFrame {
 
-
+	//Statics
     private static final long serialVersionUID = -7659865770458522413L;
     private static final double DEFAULT_INTERVAL = 2;
     private static final double MAX_INTERVAL = 10;
@@ -36,6 +30,7 @@ public class MainFrame extends JFrame {
     //The playground for the vacuum cleaner
     private World world;
 
+    //Thread for the simulation to run on
     private Thread thread;
     
     //GUI components
@@ -47,6 +42,9 @@ public class MainFrame extends JFrame {
     private JButton runBtn;
     private JButton stopBtn;
     private JButton resetButton;
+    private JCheckBox dustRespawnBox;
+    private JCheckBox strictMovementBox;
+    private JCheckBox rememberObjectsBox;
 
     // Timer for starting/stopping simulation
     private Timer timer;
@@ -57,15 +55,20 @@ public class MainFrame extends JFrame {
     private JLabel statusLbl;
     private JCheckBox agentCkBox;
     
+    /**
+     * Main method. Is called when the program is executed
+     * Makes the MainFrame JFrame object
+     * @param args command line arguments
+     */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
 		MainFrame mainFrame = new MainFrame();
 		mainFrame.setVisible(true);
-
 	}
 	
-	//Create the main frame
+	/**
+	 * Constructor of the MainFrame class
+	 * Creates all the GUI elements
+	 */
 	public MainFrame() {
 		
 	    // Generated code for child components
@@ -82,25 +85,33 @@ public class MainFrame extends JFrame {
         runBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //run();
             	int r, c, d, o; 
             	r = Integer.parseInt(nrRows.getText());
             	c = Integer.parseInt(nrCols.getText());
             	d = Integer.parseInt(dustPs.getText());
             	o = Integer.parseInt(nrObjects.getText());
-            	world = new World(r, c, d, o, stepLbl);
+            	boolean dustRespawn = false;
+            	boolean strictMovement = false;
+            	boolean rememberObject = false;
+            	if (dustRespawnBox.isSelected()) dustRespawn = true;
+            	if (strictMovementBox.isSelected()) strictMovement = true;
+            	if (rememberObjectsBox.isSelected()) rememberObject = true;
+            	world = new World(r, c, d, o, stepLbl, dustRespawn,
+            			strictMovement, rememberObject);
                 world.setBounds(10, 10, 800, 800);
                 contentPane.add(world);
                 repaint();
                 world.simStarted();
                 runBtn.setEnabled(false);
                 thread = new Thread(new Runnable() {
+                	/**
+                	 * Run method for the simulation thread. Starts the simulation
+                	 */
 					public void run() {
 						world.start();
 					}
 				});
                 thread.start();
-                
             }
         });
         runBtn.setBounds(900, 11, 89, 23);
@@ -110,7 +121,10 @@ public class MainFrame extends JFrame {
         stopBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //stop();
+               if(world.checkSimulationStatus()) {
+            	   world.simStopped();
+               }
+               else world.simStarted();
             	
             }
         });
@@ -129,7 +143,6 @@ public class MainFrame extends JFrame {
         });
         resetButton.setBounds(950, 45, 89, 23);
         contentPane.add(resetButton);
-
         
         JLabel simVarLabel = new JLabel("Simulation variables");
         simVarLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -172,6 +185,20 @@ public class MainFrame extends JFrame {
         nrCols.setBounds(1000, 229, 86, 20);
         contentPane.add(nrCols);
         
+        dustRespawnBox = new JCheckBox("Dust respawn");
+        dustRespawnBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        dustRespawnBox.setBounds(900, 400, 110, 20);
+        contentPane.add(dustRespawnBox);
+        
+        strictMovementBox = new JCheckBox("Strict movement");
+        strictMovementBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        strictMovementBox.setBounds(900, 430, 150, 20);
+        contentPane.add(strictMovementBox);
+        
+        rememberObjectsBox = new JCheckBox("Remember object placement");
+        rememberObjectsBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        rememberObjectsBox.setBounds(900, 460, 200, 20);
+        contentPane.add(rememberObjectsBox);
         
         JLabel simInfoLabel = new JLabel("Simulation information");
         simInfoLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -180,10 +207,11 @@ public class MainFrame extends JFrame {
         
         /*
          * Make a checkbox with different agents
-         * Display sim information: steps, dust left, and so on
+         * Display sim information with Labels: steps, dust left, crashes and so on
          */
+        
         JLabel stepText = new JLabel("Steps: ");
-        stepText.setBounds(900, 310, 89, 14);
+        stepText.setBounds(900, 310, 89, 20);
         stepText.setFont(new Font("Tahoma", Font.PLAIN, 16));
         contentPane.add(stepText);
         
@@ -206,9 +234,5 @@ public class MainFrame extends JFrame {
                     }
                 });
         timer.setInitialDelay(0);
-	}
-	
-	public void setStepText() {
-		
 	}
 }
