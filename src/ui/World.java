@@ -43,8 +43,14 @@ public class World extends JPanel  {
 	private int dustParticles;
 	private int MaxDustParticles;
 	private int steps;
+	private int crashes;
+	private int eastChance;
+	private int westChance;
+	private int forwardChance;
 	//GUI Components
 	public JLabel stepLbl;
+	public JLabel crashLbl;
+	public JLabel dustRmnLabel;
 	//Array and objects
 	private ArrayList<FloorTile> tiles = new ArrayList<FloorTile>();
 	private ArrayList<Integer> wasDustTiles = new ArrayList<Integer>();
@@ -59,23 +65,38 @@ public class World extends JPanel  {
 	 * @param objects how many objects, excluding the border
 	 */
 	public World(int rows, int columns, int dustParticles, int objects, JLabel lbl,
-						boolean dustRespawn, boolean strictMovement, boolean rememberObject) {
+					boolean dustRespawn, boolean strictMovement,
+							boolean rememberObject, JLabel crashLbl, JLabel dustRmnLabel,
+							int eastChance, int westChance, int forwardChance) {
 		super();
 		
 		steps = 1000;
+		crashes = 0;
 		this.rows = rows;
 		this.columns = columns;
 		this.objects = objects;
 		this.dustParticles = dustParticles;
 		MaxDustParticles = dustParticles;
 		stepLbl = lbl;
+		this.crashLbl = crashLbl;
+		this.dustRmnLabel = dustRmnLabel;
+		String s = Integer.toString(dustParticles);
+		this.dustRmnLabel.setText(s);
 		botSet = false;
 		botNr = 0;
 		this.dustRespawn = dustRespawn;
 		this.strictMovement = strictMovement;
 		this.rememberObjectPlacement = rememberObject;
+		
+		this.eastChance = eastChance;
+		this.westChance = westChance;
+		this.forwardChance = forwardChance;
+		
 		int nrTiles = rows * columns;
 		int tilenr = 0;
+		
+		
+		
 		
 		//Nested loop for creating all the tiles corresponding to the rows*columns
 		for(int i=0; i < rows; i++) {
@@ -155,7 +176,9 @@ public class World extends JPanel  {
 				int y = tiles.get(nL).yCoor();
 				botSet = true;
 				botNr = nL;
-				agent = new RAgent(nL, x, y, this, this.dustRespawn);
+				agent = new RAgent(nL, x, y, this, this.dustRespawn,
+							this.strictMovement, this.rememberObjectPlacement,
+							eastChance, westChance, forwardChance);
 			}
 		}
 		
@@ -231,6 +254,10 @@ public class World extends JPanel  {
 			steps--;
 			String s = Integer.toString(steps);
 			stepLbl.setText(s);
+			s = Integer.toString(dustParticles);
+			dustRmnLabel.setText(s);
+			s = Integer.toString(crashes);
+			crashLbl.setText(s);
 			if(simSet == false) {
 				while(simSet == false) {
 					try {
@@ -261,10 +288,18 @@ public class World extends JPanel  {
 	 */
 	public int checkTile(int nX, int nY, int loc, int cDir) {
 		int nr = 0; 
+		boolean crashedHereEarlier = false;
 		for(int i = 0; i < rows; i++) {
 			for(int j = 0; j < columns; j++) {
 				nr++;				
 				if(i == nX && j == nY) {
+					if(rememberObjectPlacement){
+						for(int c = 0; c < crashedHere.size(); c++) {
+							int test = crashedHere.get(c).intValue();
+							if(test == nr) { crashedHereEarlier = true;
+							}
+						}
+					}
 					if(tiles.get(nr).isDust()) {	//If next tile is dust
 						agent.setNextTileIsdust();
 						tiles.get(loc).removebot();
@@ -275,8 +310,9 @@ public class World extends JPanel  {
 						return cDir;
 					}
 					else if(tiles.get(nr).isObject()) {	//Crash. Increment crash counter.
-						if(rememberObjectPlacement) {
-							
+						if(!crashedHereEarlier) {
+							crashes++;
+							crashedHere.add(nr);
 						}
 						return 0;
 					}

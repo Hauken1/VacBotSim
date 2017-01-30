@@ -18,19 +18,26 @@ public class RAgent {
 	public static final int SOUTH = 2;
 	public static final int EAST = 3;
 	public static final int WEST = 4;
-	public static final double EASTCHANCE = 0.1;
-	public static final double WESTCHANCE = 0.3;
-	public static final double FORWARDCHANCE = 0.80;
+	//public static final double EASTCHANCE = 0.1;
+	//public static final double WESTCHANCE = 0.3;
+	//public static final double FORWARDCHANCE = 0.80;
 	//Variables
 	private int nLoc; 
 	private boolean learnB;
 	private boolean nextTileIsDust;
 	private boolean validMove;
 	private boolean respawningDust;
+	private boolean strictMovement;
+	private boolean rememberObjectPlacement;
+	private int strictMoveChange;
 	private int lastLastDir;
 	private int cDirection;
 	private int x;
 	private int y; 
+	private double eastChance;
+	private double westChance;
+	private double forwardChance;
+	
 	//Other class objects
 	private World world;
 	
@@ -42,19 +49,36 @@ public class RAgent {
 	 * @param y current column position
 	 * @param world contains the current simulation world
 	 */
-	public RAgent(int nLocation, int x, int y, World world, boolean respawndust) {
+	public RAgent(int nLocation, int x, int y, World world, 
+				boolean respawndust, boolean strictMovement, boolean rememberObject,
+				int eastChance, int westChance, int forwardChance) {
 		nLoc = nLocation; 
 		validMove = true;
 		nextTileIsDust = false;
 		this.respawningDust = respawndust;
+		this.strictMovement = strictMovement;
+		this.rememberObjectPlacement = rememberObject;
 		this.world = world;
+		strictMoveChange = 0;
+		int e = eastChance;
+		int w = westChance;
+		int f = forwardChance;
 		
-		Random rng = new Random();
-		int dir = rng.nextInt(4)+1;
-		cDirection = dir;
+		this.eastChance = e*0.01;
+		this.westChance = w*0.01;
+		this.forwardChance = f*0.01;
 		
+		if(strictMovement) {
+			cDirection = EAST;
+		}
+		else {
+			Random rng = new Random();
+			int dir = rng.nextInt(4)+1;
+			cDirection = dir;
+		}	
 		this.x = x;
 		this.y = y;
+		
 	}
 	
 	/**
@@ -119,23 +143,47 @@ public class RAgent {
 		int n = world.checkTile(nX, nY, nLoc, cDirection);
 		if(n == 0) {	//Cant find the next tile, or the bot crashed
 			if(validMove == false) { //Crashed last tile
-				int dir = 0;
-				while(dir == 0 || dir == lastLastDir) { //Tries to find a new dir
-					Random rng = new Random();
-					dir = rng.nextInt(4)+1;
+				if(strictMovement) {
+					switch(lastLastDir) {
+					case 1:
+						cDirection = WEST;
+						break;
+					case 2:
+						cDirection = EAST;
+						break;
+					case 3:
+						cDirection = NORTH;
+						break;
+					case 4:
+						cDirection = SOUTH;
+						break;
+					}
+					validMove = true;
 				}
-				cDirection = dir;
+				else {
+					int dir = 0;
+					while(dir == 0 || dir == lastLastDir) { //Tries to find a new dir
+						Random rng = new Random();
+						dir = rng.nextInt(4)+1;
+					}
+					cDirection = dir;
+				}
 			}
 			else {	//Crashed
-				validMove = false;
 				lastLastDir = cDirection;
-				int dir = 0;
-				while(dir == 0 || dir == cDirection ) { //Tries to find a new dir
-					Random rng = new Random();
-					dir = rng.nextInt(4)+1;
+				validMove = false;
+				if(strictMovement){
+					cDirection = NORTH;
 				}
-				System.out.println("dir :" + dir);
-				cDirection = dir;
+				else {
+					
+					int dir = 0;
+					while(dir == 0 || dir == cDirection ) { //Tries to find a new dir
+						Random rng = new Random();
+						dir = rng.nextInt(4)+1;
+					}
+					cDirection = dir;
+				}
 			}
 		}
 		else {
@@ -146,19 +194,36 @@ public class RAgent {
 			cDirection = n;
 			}
 			else {
-				Random r = new Random();
-		        float chance;
-		        chance = r.nextFloat();
-		        if (respawningDust) {
-		        	if ( chance < 0.001) world.respawningDust();
-		        }
-		        if (chance < EASTCHANCE) {
-	                cDirection = EAST;
-	            } else if (chance < WESTCHANCE) {
-	                cDirection = WEST;
-	            } else if (chance < FORWARDCHANCE) {
-	                cDirection = n;
-	            } 
+				if(strictMovement) {
+					strictMoveChange++;
+					if(strictMoveChange > 4) {
+						strictMoveChange = 0;
+						cDirection = EAST;
+					}
+					else	cDirection = SOUTH;
+					
+				}
+				else {
+					Random r = new Random();
+			        float chance;
+			        chance = r.nextFloat();
+			        if (respawningDust) {
+			        	if ( chance < 0.005) world.respawningDust();
+			        }
+			        if (chance < eastChance) {
+		                cDirection = EAST;
+		            } else if (chance < westChance) {
+		                cDirection = WEST;
+		            } else if(eastChance == westChance) {
+			        	int draw = r.nextInt(2)+1;
+			        	if(draw == 1) {
+			        		cDirection = EAST;
+			        	} else cDirection = WEST;
+		            }
+		            else if (chance < forwardChance) {
+		                cDirection = n;
+		            } 
+				}
 			}
 			
 		}

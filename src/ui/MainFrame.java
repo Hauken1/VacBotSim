@@ -39,6 +39,9 @@ public class MainFrame extends JFrame {
     private JTextField dustPs;
     private JTextField nrRows;
     private JTextField nrCols;
+    private JTextField eastChance;
+    private JTextField westChance;
+    private JTextField forwardChance;
     private JButton runBtn;
     private JButton stopBtn;
     private JButton resetButton;
@@ -52,8 +55,8 @@ public class MainFrame extends JFrame {
     private JLabel stepLbl;
     private JLabel scoreLbl;
     private JLabel dustRmnLbl;
+    private JLabel crashLbl;
     private JLabel statusLbl;
-    private JCheckBox agentCkBox;
     
     /**
      * Main method. Is called when the program is executed
@@ -85,11 +88,14 @@ public class MainFrame extends JFrame {
         runBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	int r, c, d, o; 
+            	int r, c, d, o, eC, wC, fC; 
             	r = Integer.parseInt(nrRows.getText());
             	c = Integer.parseInt(nrCols.getText());
             	d = Integer.parseInt(dustPs.getText());
             	o = Integer.parseInt(nrObjects.getText());
+            	eC = Integer.parseInt(eastChance.getText());
+            	wC = Integer.parseInt(westChance.getText());
+            	fC = Integer.parseInt(forwardChance.getText());
             	boolean dustRespawn = false;
             	boolean strictMovement = false;
             	boolean rememberObject = false;
@@ -97,7 +103,7 @@ public class MainFrame extends JFrame {
             	if (strictMovementBox.isSelected()) strictMovement = true;
             	if (rememberObjectsBox.isSelected()) rememberObject = true;
             	world = new World(r, c, d, o, stepLbl, dustRespawn,
-            			strictMovement, rememberObject);
+            			strictMovement, rememberObject, crashLbl, dustRmnLbl, eC, wC, fC);
                 world.setBounds(10, 10, 800, 800);
                 contentPane.add(world);
                 repaint();
@@ -185,41 +191,86 @@ public class MainFrame extends JFrame {
         nrCols.setBounds(1000, 229, 86, 20);
         contentPane.add(nrCols);
         
+        JLabel eastText = new JLabel("East chance: ");
+        eastText.setBounds(900, 260, 110, 20);
+        contentPane.add(eastText);
+       
+        JLabel westText = new JLabel("West chance: ");
+        westText.setBounds(900, 285, 110, 20);
+        contentPane.add(westText);
+        
+        JLabel forwardText = new JLabel("Forward chance: ");
+        forwardText.setBounds(900, 310, 110, 20);
+        contentPane.add(forwardText);
+        
+        eastChance = new JTextField();
+        eastChance.setText("10");
+        eastChance.setBounds(1030, 260, 55, 20);
+        contentPane.add(eastChance);
+        
+        westChance = new JTextField();
+        westChance.setText("30");
+        westChance.setBounds(1030, 285, 55, 20);
+        contentPane.add(westChance);
+        
+        forwardChance = new JTextField();
+        forwardChance.setText("60");
+        forwardChance.setBounds(1030, 310, 55, 20);
+        contentPane.add(forwardChance);
+        
         dustRespawnBox = new JCheckBox("Dust respawn");
         dustRespawnBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        dustRespawnBox.setBounds(900, 400, 110, 20);
+        dustRespawnBox.setBounds(900, 340, 110, 20);
         contentPane.add(dustRespawnBox);
         
         strictMovementBox = new JCheckBox("Strict movement");
         strictMovementBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        strictMovementBox.setBounds(900, 430, 150, 20);
+        strictMovementBox.setBounds(900, 360, 150, 20);
         contentPane.add(strictMovementBox);
         
         rememberObjectsBox = new JCheckBox("Remember object placement");
         rememberObjectsBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        rememberObjectsBox.setBounds(900, 460, 200, 20);
+        rememberObjectsBox.setBounds(900, 380, 250, 20);
         contentPane.add(rememberObjectsBox);
         
         JLabel simInfoLabel = new JLabel("Simulation information");
         simInfoLabel.setFont(new Font("Tahoma", Font.BOLD, 16));
-        simInfoLabel.setBounds(900, 270, 200, 23);
+        simInfoLabel.setBounds(900, 420, 200, 23);
         contentPane.add(simInfoLabel);
-        
-        /*
-         * Make a checkbox with different agents
-         * Display sim information with Labels: steps, dust left, crashes and so on
-         */
-        
+         
         JLabel stepText = new JLabel("Steps: ");
-        stepText.setBounds(900, 310, 89, 20);
+        stepText.setBounds(900, 450, 89, 20);
         stepText.setFont(new Font("Tahoma", Font.PLAIN, 16));
         contentPane.add(stepText);
         
         stepLbl = new JLabel();
         stepLbl.setText("1000");
         stepLbl.setFont(new Font("Tahoma", Font.PLAIN, 14));
-        stepLbl.setBounds(1000, 310, 89, 14);
+        stepLbl.setBounds(1000, 450, 89, 14);
         contentPane.add(stepLbl);
+        
+        JLabel dustReText = new JLabel("Dust: ");
+        dustReText.setBounds(900, 470, 89, 20);
+        dustReText.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        contentPane.add(dustReText);
+        
+        dustRmnLbl = new JLabel();
+        dustRmnLbl.setText("");
+        dustRmnLbl.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        dustRmnLbl.setBounds(1000, 470, 89, 20);
+        contentPane.add(dustRmnLbl);
+        
+        JLabel crashText = new JLabel("Crashes: ");
+        crashText.setBounds(900, 490, 89, 20);
+        crashText.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        contentPane.add(crashText);
+        
+        crashLbl = new JLabel();
+        crashLbl.setText("0");
+        crashLbl.setFont(new Font("Tahoma", Font.PLAIN, 16));
+        crashLbl.setBounds(1000, 490, 89, 20);
+        contentPane.add(crashLbl);
+        
         
         // Set properties
         this.setTitle("VacBot Simulator");
