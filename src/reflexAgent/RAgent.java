@@ -200,7 +200,7 @@ public class RAgent {
 						strictMoveChange = 0;
 						cDirection = EAST;
 					}
-					else	cDirection = SOUTH;
+					else	cDirection = EAST;
 					
 				}
 				else {

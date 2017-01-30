@@ -63,6 +63,16 @@ public class World extends JPanel  {
 	 * @param columns how many columns in the grid
 	 * @param dustParticles how many dust particales
 	 * @param objects how many objects, excluding the border
+	 * @param lbl label used to decrement steps in the GUI
+	 * @param dustRespawn true/false depending on dust should respawn or not
+	 * @param strictMovement true/false depending on there should be no random movement
+	 * @param rememberObject true/false depending on if the agent should remember crashlocations
+	 * @param crashLbl label to show number of crashes
+	 * @param dustRmnLabel label to show number of dust particles remaining
+	 * @param eastChance chance for the agent to turn east, chosen by user
+	 * @param westChance chance for the agent to turn west, chosen by user
+	 * @param forwardChance chance for the agent to turn forward, chosen by uyser
+	 * 
 	 */
 	public World(int rows, int columns, int dustParticles, int objects, JLabel lbl,
 					boolean dustRespawn, boolean strictMovement,
