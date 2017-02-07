@@ -5,6 +5,8 @@ This is a vacuum cleaner agent set in a configurable simulation environment and 
 
 While creating the environment for this simulation the main focus was to create an GUI where the user could change the variables described in the assignment (size, shape, dust placement and some more). This made it simple to change test configurations, giving a better insight in how well it performs, and giving an idea of what it is able to accomplish during simulation with the step limitation in mind.
 
+![Screenshot](readMePic.png)
+
 The last part the environment does is to create the agent. The agent is given a random starting location on the grid (the array list) and starting direction for where it should start moving. The environment will then create a thread which starts the agent’s movement. 
 Based on the direction it was given it will first check what type of tile is in that direction:
 -	Dust tile: Move to the tile and continue in that direction. 
