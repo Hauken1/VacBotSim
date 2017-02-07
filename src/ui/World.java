@@ -105,9 +105,6 @@ public class World extends JPanel  {
 		int nrTiles = rows * columns;
 		int tilenr = 0;
 		
-		
-		
-		
 		//Nested loop for creating all the tiles corresponding to the rows*columns
 		for(int i=0; i < rows; i++) {
 			for( int j = 0; j < columns; j++) {
