@@ -14,7 +14,7 @@ Based on the direction it was given it will first check what type of tile is in 
 Additional agent related GUI components and functionality:
 
 •	Dust respawning checkbox
-Enabling this will make movement have a fixed chance to respawn dust. Explained more in task e).
+Enabling this will make movement have a fixed chance to respawn dust. 
 
 •	Strict movement checkbox
 Enabling this will remove the random element from the movement and make it more predictable. Nevertheless, because of the nature of this kind of movement and how it is programmed, it is unstable and will most likely end with the robot being stuck in a corner. 
@@ -24,4 +24,4 @@ Enabling this will make the agent remember objects is has crashed into. This gre
 
 This agent is to be considered very simple and based on its decision making, un-clever. It is a reflex agent with some random agent elements. Instead of just picking left or right in a very strict manner it will do so randomly, except for when the user checks the strict movement checkbox in the program. 
 
-For more information about classes and methods of the agent or environment, check out the Java Documentation or the code itself. Try 
+For more information about classes and methods of the agent or environment, check out the Java Documentation or the code itself.
