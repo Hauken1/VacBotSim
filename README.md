@@ -1,5 +1,7 @@
-# VacBotSim
-A vacuum cleaner robot simulation
+# VacBotSim - Introduction to AI course, Assignment 1 
+A vacuum cleaner robot simulation. 
+
+Grade: A 
 
 This is a vacuum cleaner agent set in a configurable simulation environment and is made from scratch using Java. External libraries and dependencies were not used. This simulation is not supposed to be clever or implement any impactful AI concepts, as the goal was to make a simple reflex agent and acquire a larger understanding of how the agent would solve the problems it was presented. With various options included as to explore and clearly see the limits of the design. 
 
